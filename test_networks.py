@@ -39,8 +39,7 @@ class TestSimpleWidget:
     @pytest.mark.cli
     def test_cpu_num(self):
         """ Test for number of CPUs assigned to the VM"""
-        # pylint: disable=unused-variable
-        stdin, stdout, stderr = self.ssh.exec_command('lscpu | '
+        _, stdout, __ = self.ssh.exec_command('lscpu | '
                                                       'grep -e ^CPU\\(s\\)')
         mylogger.info('Get Number of CPUs from the VM')
         out = stdout.readline().split()
@@ -49,19 +48,18 @@ class TestSimpleWidget:
 
     def test_mem_avail(self):
         """ Test for memory availability: More than 50% """
-        # pylint: disable=unused-variable
-        stdin, stdout, stderr = self.ssh.exec_command('free -m | grep Mem:')
+        _, stdout, __ = self.ssh.exec_command('free -m | grep Mem:')
         mylogger.warning('Memory availability')
         out = stdout.readline().split()
         self.out = TIMESTAMP + ' MEM_AVAIL: ' + out[-1] + '\n'
         assert int(out[-1]) >= 0.5 * int(out[1])
 
     @pytest.mark.parametrize("ip_address", ['192.168.234.129',
-                                            '192.168.24.130'])
+                                            '192.168.24.130',
+                                            '192.168.1.42'])
     def test_ping(self, ip_address):
         """ Check the connectivity between host and diff VMs """
-        # pylint: disable=unused-variable
-        stdin, stdout, stderr = self.ssh.exec_command('ping -c 5 ' +
+        _, stdout, __ = self.ssh.exec_command('ping -c 5 ' +
                                                       ip_address)
         mylogger.warning('Ping')
         out = []
@@ -77,8 +75,7 @@ class TestSimpleWidget:
 
     def test_cpu_idle(self):
         """ Test for % CPU availability: More than 50"""
-        # pylint: disable=unused-variable
-        stdin, stdout, stderr = self.ssh.exec_command('sudo apt install '
+        _, stdout, __ = self.ssh.exec_command('sudo apt install '
                                                       'sysstat; mpstat | '
                                                       'grep -e .[0-9]$')
         mylogger.info('CPU Idle%')
