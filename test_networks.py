@@ -18,7 +18,7 @@ TIMESTAMP = str(datetime.datetime.now())
 
 @pytest.fixture
 def ini_command():
-    node = pyeapi.connect('S1')
+    node = pyeapi.connect_to('S1')
     _ = node.enable('show version')
     return node
 
@@ -43,10 +43,10 @@ class TestSimpleWidget:
 
     def test_vlan(self, ini_command):
         """ Test for vlan available """
-        tmp = ini_command.enable('show vlan')
-        out = tmp[0]['result']['output']
-        self.out = TIMESTAMP + ' VLANs: ' + out + '\n'
-        assert out == '1'
+        tmp = ini_command.api('vlans')
+        out = [i['vlan_id'] for i in tmp]
+        self.out = TIMESTAMP + ' VLANs: ' + len(out) + '\n'
+        assert 1 in out
 
     # test cases goes here with 'test' prefix
     # run this marked testcase: (pytest -v -m "cli")
