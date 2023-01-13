@@ -18,6 +18,7 @@ TIMESTAMP = str(datetime.datetime.now())
 
 @pytest.fixture
 def ini_command():
+    """ Connecting switch """
     node = pyeapi.connect_to('S1')
     _ = node.enable('show version')
     return node
@@ -41,11 +42,11 @@ class TestSimpleWidget:
         self.ssh.connect(hostname='192.168.234.129', username='dhruv',
                          password='root', port=22)
 
-    def test_vlan(self, ini_command):
+    def test_vlan(self):
         """ Test for vlan available """
         tmp = ini_command.api('vlans')
         out = [i['vlan_id'] for i in tmp]
-        self.out = TIMESTAMP + ' VLANs: ' + len(out) + '\n'
+        self.out = TIMESTAMP + ' VLANs: ' + str(len(out)) + '\n'
         assert 1 in out
 
     # test cases goes here with 'test' prefix
