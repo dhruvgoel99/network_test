@@ -3,3 +3,4 @@ pytest~=7.2.0
 pylint
 pycodestyle
 flake8
+pyeapi

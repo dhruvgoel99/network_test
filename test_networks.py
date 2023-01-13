@@ -7,12 +7,20 @@ import logging
 import re
 import paramiko
 import pytest
+import pyeapi
 
 logging.basicConfig(level=logging.DEBUG)
 mylogger = logging.getLogger()
 
 OUTPUT_FILE = 'vm_details.txt'
 TIMESTAMP = str(datetime.datetime.now())
+
+
+@pytest.fixture
+def ini_command():
+    node = pyeapi.connect('S1')
+    _ = node.enable('show version')
+    return node
 
 
 class TestSimpleWidget:
@@ -33,6 +41,13 @@ class TestSimpleWidget:
         self.ssh.connect(hostname='192.168.234.129', username='dhruv',
                          password='root', port=22)
 
+    def test_vlan(self, ini_command):
+        """ Test for vlan available """
+        tmp = ini_command.enable('show vlan')
+        out = tmp[0]['result']['output']
+        self.out = TIMESTAMP + ' VLANs: ' + out + '\n'
+        assert out == '1'
+
     # test cases goes here with 'test' prefix
     # run this marked testcase: (pytest -v -m "cli")
     # other test cases: (pytest -v -m "not cli")
@@ -40,7 +55,7 @@ class TestSimpleWidget:
     def test_cpu_num(self):
         """ Test for number of CPUs assigned to the VM"""
         _, stdout, __ = self.ssh.exec_command('lscpu | '
-                                                      'grep -e ^CPU\\(s\\)')
+                                              'grep -e ^CPU\\(s\\)')
         mylogger.info('Get Number of CPUs from the VM')
         out = stdout.readline().split()
         self.out = TIMESTAMP + ' CPU_NUM: ' + out[-1] + '\n'
@@ -60,7 +75,7 @@ class TestSimpleWidget:
     def test_ping(self, ip_address):
         """ Check the connectivity between host and diff VMs """
         _, stdout, __ = self.ssh.exec_command('ping -c 5 ' +
-                                                      ip_address)
+                                              ip_address)
         mylogger.warning('Ping')
         out = []
         while True:
@@ -76,8 +91,8 @@ class TestSimpleWidget:
     def test_cpu_idle(self):
         """ Test for % CPU availability: More than 50"""
         _, stdout, __ = self.ssh.exec_command('sudo apt install '
-                                                      'sysstat; mpstat | '
-                                                      'grep -e .[0-9]$')
+                                              'sysstat; mpstat | '
+                                              'grep -e .[0-9]$')
         mylogger.info('CPU Idle%')
         out = stdout.readline().split()
         self.out = TIMESTAMP + ' CPU_IDLE: ' + out[-1] + '\n'
