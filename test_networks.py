@@ -81,10 +81,18 @@ class TestSimpleWidget:
         self.out = TIMESTAMP + ' MACs: ' + ' '.join(out) + '\n'
         assert 4 == len(out)
 
-    @pytest.mark.parametrize('args', [('Router', 'ip route')])
+    @pytest.mark.parametrize('args', [('Router', 'show ip route')])
     def test_neighbours(self, ini_command):
         """test for number of neighbours of devices"""
         return ini_command.execute_cmd()
+
+    @pytest.mark.parametrize('args', [('Router', 'show arp')])
+    def test_arp(self, ini_command):
+        """test number of devices reachable"""
+        tmp = ini_command.execute_cmd()
+        out = [i['Address'] for i in tmp['result']]
+        self.out = TIMESTAMP + ' IPs: ' + ' '.join(out) + '\n'
+        assert 6 == len(out)  # extra 2 for router interfaces
 
     # test cases goes here with 'test' prefix
     # run this marked testcase: (pytest -v -m "cli")
