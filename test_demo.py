@@ -41,18 +41,18 @@ def test_multiplication_11(num):
 class HelperFixt:
     """Helper class for fixture statements """
 
-    def __init__(self, x, y):
+    def __init__(self, num1, num2):
         """Constructor to initialize data"""
-        self.x = x
-        self.y = y
+        self.num1 = num1
+        self.num2 = num2
 
     def command(self):
         """Statement from fixture function"""
-        return self.x
+        return self.num1
 
     def sec_command(self):
         """Statement for modulus"""
-        return self.x % self.y == 0
+        return self.num1 % self.num2 == 0
 
 
 @pytest.fixture(name="demo_fixt")

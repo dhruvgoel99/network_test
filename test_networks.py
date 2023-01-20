@@ -35,6 +35,7 @@ class FixtureHelper:
         return self.connection().api(self.req)
 
     def execute_cmd(self):
+        """return result for any other command"""
         return self.connection().execute([self.req])
 
 
@@ -71,7 +72,8 @@ class TestSimpleWidget:
         self.out = TIMESTAMP + ' VLANs: ' + str(len(out)) + '\n'
         assert 1 in out
 
-    @pytest.mark.parametrize('args', [('S1', 'show mac address-table'), ('Router', 'show mac address-table')])
+    @pytest.mark.parametrize('args', [('S1', 'show mac address-table'),
+                                      ('Router', 'show mac address-table')])
     def test_mac_address(self, ini_command):
         """Check number of mac address available in Switch"""
         tmp = ini_command.execute_cmd()
