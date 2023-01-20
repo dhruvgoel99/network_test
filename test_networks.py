@@ -72,7 +72,7 @@ class TestSimpleWidget:
         self.out = TIMESTAMP + ' VLANs: ' + str(len(out)) + '\n'
         assert 1 in out
 
-    @pytest.mark.parametrize('hostname', ['S1'])
+    @pytest.mark.parametrize('hostname', ['S1', 'Router'])
     @pytest.mark.parametrize('request', ['show mac address-table'])
     def test_mac_address(self, ini_command):
         """Check number of mac address available in Switch"""
