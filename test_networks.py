@@ -20,28 +20,28 @@ TIMESTAMP = str(datetime.datetime.now())
 
 class FixtureHelper:
     """Helper class for fixture"""
-    def __init__(self, name, request):
+    def __init__(self, name, req):
         """Initialize hostname"""
         self.hostname = name
-        self.request = request
+        self.req = req
 
     def connection(self):
         """connecting to specified host"""
         node = pyeapi.connect_to(self.hostname)
         return node
 
-    def api_request(self):
+    def api_req(self):
         """return the results for 'show' commands"""
-        return self.connection().api(self.request)
+        return self.connection().api(self.req)
 
     def execute_cmd(self):
-        return self.connection().execute([self.request])
+        return self.connection().execute([self.req])
 
 
 @pytest.fixture(name="ini_command")
-def pyeapi_connection(hostname, request):
+def pyeapi_connection(args):
     """ Connecting switch """
-    return FixtureHelper(hostname, request)
+    return FixtureHelper(args[0], args[1])
 
 
 class TestSimpleWidget:
@@ -62,18 +62,16 @@ class TestSimpleWidget:
         self.ssh.connect(hostname=config.HOSTNAME, username=config.USERNAME,
                          password=config.PASSWORD, port=config.PORT)
 
-    @pytest.mark.parametrize('hostname', ['S1', 'Router'])
-    @pytest.mark.parametrize('request', ['vlans'])
+    @pytest.mark.parametrize('args', [('S1', 'vlans'), ('Router', 'vlans')])
     def test_vlan(self, ini_command):
         """ Test for vlan available """
         # tmp = ini_command.connection().api('vlans')
-        tmp = ini_command.api_request()
+        tmp = ini_command.api_req()
         out = [i['vlan_id'] for i in tmp]
         self.out = TIMESTAMP + ' VLANs: ' + str(len(out)) + '\n'
         assert 1 in out
 
-    @pytest.mark.parametrize('hostname', ['S1', 'Router'])
-    @pytest.mark.parametrize('request', ['show mac address-table'])
+    @pytest.mark.parametrize('args', [('S1', 'show mac address-table'), ('Router', 'show mac address-table')])
     def test_mac_address(self, ini_command):
         """Check number of mac address available in Switch"""
         tmp = ini_command.execute_cmd()
@@ -81,8 +79,7 @@ class TestSimpleWidget:
         self.out = TIMESTAMP + ' MACs: ' + ' '.join(out) + '\n'
         assert 4 == len(out)
 
-    @pytest.mark.parametrize('hostname', ['Router'])
-    @pytest.mark.parametrize('request', ['ip route'])
+    @pytest.mark.parametrize('args', [('Router', 'ip route')])
     def test_neighbours(self, ini_command):
         """test for number of neighbours of devices"""
         return ini_command.execute_cmd()
