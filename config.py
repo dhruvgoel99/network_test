@@ -1,0 +1,4 @@
+HOSTNAME = '192.168.234.129'
+USERNAME = 'dhruv'
+PASSWORD = 'root'
+PORT = 22

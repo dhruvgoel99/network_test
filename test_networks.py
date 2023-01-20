@@ -9,6 +9,8 @@ import paramiko
 import pytest
 import pyeapi
 
+import config
+
 logging.basicConfig(level=logging.DEBUG)
 mylogger = logging.getLogger()
 
@@ -16,12 +18,27 @@ OUTPUT_FILE = 'vm_details.txt'
 TIMESTAMP = str(datetime.datetime.now())
 
 
-@pytest.fixture
-def ini_command():
+class FixtureHelper:
+    """Helper class for fixture"""
+    def __init__(self, name, request):
+        """Initialize hostname"""
+        self.hostname = name
+        self.request = request
+
+    def connection(self):
+        """connecting to specified host"""
+        node = pyeapi.connect_to(self.hostname)
+        return node
+
+    def api_request(self):
+        """return the results for 'show' commands"""
+        return self.connection().api(self.request)
+
+
+@pytest.fixture(name="ini_command")
+def pyeapi_connection(hostname, request):
     """ Connecting switch """
-    node = pyeapi.connect_to('S1')
-    _ = node.enable('show version')
-    return node
+    return FixtureHelper(hostname, request)
 
 
 class TestSimpleWidget:
@@ -39,15 +56,24 @@ class TestSimpleWidget:
         self.ssh.load_system_host_keys()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         mylogger.info('Connecting to the Guest VM')
-        self.ssh.connect(hostname='192.168.234.129', username='dhruv',
-                         password='root', port=22)
+        self.ssh.connect(hostname=config.HOSTNAME, username=config.USERNAME,
+                         password=config.PASSWORD, port=config.PORT)
 
-    def test_vlan(self):
+    @pytest.mark.parametrize('hostname', ['S1', 'Router'])
+    @pytest.mark.parametrize('request', ['vlans'])
+    def test_vlan(self, ini_command):
         """ Test for vlan available """
-        tmp = ini_command.api('vlans')
+        # tmp = ini_command.connection().api('vlans')
+        tmp = ini_command.api_request()
         out = [i['vlan_id'] for i in tmp]
         self.out = TIMESTAMP + ' VLANs: ' + str(len(out)) + '\n'
         assert 1 in out
+
+    @pytest.mark.parametrize('hostname', ['Router'])
+    @pytest.mark.parametrize('request', ['ip route'])
+    def test_neighbours(self, ini_command):
+        """test for number of neighbours of devices"""
+        return ini_command.api_request()
 
     # test cases goes here with 'test' prefix
     # run this marked testcase: (pytest -v -m "cli")
