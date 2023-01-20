@@ -34,6 +34,9 @@ class FixtureHelper:
         """return the results for 'show' commands"""
         return self.connection().api(self.request)
 
+    def execute_cmd(self):
+        return self.connection().execute([self.request])
+
 
 @pytest.fixture(name="ini_command")
 def pyeapi_connection(hostname, request):
@@ -69,11 +72,20 @@ class TestSimpleWidget:
         self.out = TIMESTAMP + ' VLANs: ' + str(len(out)) + '\n'
         assert 1 in out
 
+    @pytest.mark.parametrize('hostname', ['S1'])
+    @pytest.mark.parametrize('request', ['show mac address-table'])
+    def test_mac_address(self, ini_command):
+        """Check number of mac address available in Switch"""
+        tmp = ini_command.execute_cmd()
+        out = [i['mac_address'] for i in tmp['result']]
+        self.out = TIMESTAMP + ' MACs: ' + ' '.join(out) + '\n'
+        assert 4 == len(out)
+
     @pytest.mark.parametrize('hostname', ['Router'])
     @pytest.mark.parametrize('request', ['ip route'])
     def test_neighbours(self, ini_command):
         """test for number of neighbours of devices"""
-        return ini_command.api_request()
+        return ini_command.execute_cmd()
 
     # test cases goes here with 'test' prefix
     # run this marked testcase: (pytest -v -m "cli")
