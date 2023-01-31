@@ -81,6 +81,15 @@ class TestSimpleWidget:
         self.out = TIMESTAMP + ' MACs: ' + ' '.join(out) + '\n'
         assert 4 == len(out)
 
+    @pytest.mark.parametrize('args', [('ROUTER1', 'show ip route'),
+                                      ('ROUTER2', 'show ip route'),
+                                      ('ROUTER3', 'show ip route')])
+    def test_ip_route(self, ini_command):
+        """Check for particular IP address available or not in route
+            from particular Router"""
+        tmp = ini_command.execute_cmd()
+        assert len(re.findall(r"B\s+10.10.10.0", tmp['result'])) != 0
+
     @pytest.mark.parametrize('args', [('Router', 'show ip route')])
     def test_neighbours(self, ini_command):
         """test for number of neighbours of devices"""
