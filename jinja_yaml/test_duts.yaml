@@ -1,0 +1,16 @@
+name: Router
+vlans:
+  11: User
+  22: Voice
+  33: Video
+bgp:
+  -
+    neighbor: "10.1.1.1"
+    remoteas: 65001
+  -
+    neighbor: "10.1.2.2"
+    remoteas: 65002
+  -
+    neighbor: "10.1.3.3"
+    remoteas: 65003
+

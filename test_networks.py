@@ -24,19 +24,21 @@ class FixtureHelper:
         """Initialize hostname"""
         self.hostname = name
         self.req = req
+        self.node = None
 
     def connection(self):
         """connecting to specified host"""
-        node = pyeapi.connect_to(self.hostname)
-        return node
+        self.node = pyeapi.connect_to(self.hostname)
 
     def api_req(self):
         """return the results for 'show' commands"""
-        return self.connection().api(self.req)
+        self.connection()
+        return self.node.api(self.req)
 
     def execute_cmd(self):
         """return result for any other command"""
-        return self.connection().execute([self.req])
+        self.connection()
+        return self.node.execute([self.req])
 
 
 @pytest.fixture(name="ini_command")

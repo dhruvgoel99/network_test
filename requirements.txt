@@ -4,3 +4,5 @@ pylint
 pycodestyle
 flake8
 pyeapi
+jinja2
+PyYAML
